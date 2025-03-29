@@ -3350,7 +3350,7 @@ php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
 Step 12: รัน migration
 ---
 php artisan migrate
-php artisan migrate:reset
+php artisan migrate:refresh
 
 Step 13: รัน db:seed
 ---
@@ -3366,7 +3366,7 @@ Step 14: ติดตั้ง Inertia ฝั่ง Server-side (Laravel)
 ---
 composer require inertiajs/inertia-laravel
 
-Step 4: แก้ไขไฟล์ welcome.blade.php เป็น "app.blade.php"
+Step 15: แก้ไขไฟล์ welcome.blade.php เป็น "app.blade.php"
 ---
 <!DOCTYPE html>
 <html>
@@ -3383,12 +3383,11 @@ Step 4: แก้ไขไฟล์ welcome.blade.php เป็น "app.blade.ph
   </body>
 </html>
 
-Step 5: เพิ่ม Middleware สำหรับ Inertia
+Step 16: เพิ่ม Middleware สำหรับ Inertia
 ---
 php artisan inertia:middleware
 
-
-Step 6: Config Middleware ที่ไฟล์ "app.php"
+Step 17: Config Middleware ที่ไฟล์ "app.php"
 ---
 \bootstrap\app.php
 ---
@@ -3400,8 +3399,7 @@ use App\Http\Middleware\HandleInertiaRequests;
         ]);
     })
 
-
-Step 7: ติดตั้งฝั่ง Client-side
+Step 18:ติดตั้งฝั่ง Client-side (React)
 ---
 npm install @inertiajs/react
 npm install react
@@ -3412,7 +3410,7 @@ npm install @types/react -D
 npm install @types/react-dom -D
 npm install @vitejs/plugin-react -D
 
-Step 8: แก้ไฟล์ vite.config.js
+Step 19: แก้ไฟล์ vite.config.js
 ---
 import react from '@vitejs/plugin-react'
 import laravel from 'laravel-vite-plugin'
@@ -3433,7 +3431,7 @@ export default defineConfig({
     },
 })
 
-Step: 9: สร้างหน้าหลักของ Inertia ที่ไฟล์ (app.tsx)
+Step: 20: สร้างหน้าหลักของ Inertia ที่ไฟล์ (app.tsx)
 ---
 \resources\js\app.tsx
 ---
@@ -3469,7 +3467,7 @@ createInertiaApp({
   },
 })
 
-Step 10: ทำการสร้างไฟล์ tsconfig.json
+Step 21: ทำการสร้างไฟล์ tsconfig.json
 ---
 npx tsc --init --rootDir .
 
@@ -3477,28 +3475,29 @@ npx tsc --init --rootDir .
 ---
 {
   "compilerOptions": {
-      "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-      "module": "ESNext" /* Specify what module code is generated. */,
-      "moduleResolution": "bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
-      "allowJs": true /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
-      "noEmit": true /* Disable emitting files from a compilation. */,
-      "isolatedModules": true /* Ensure that each file can be safely transpiled without relying on other imports. */,
-      "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
-      "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
-      "strict": true /* Enable all strict type-checking options. */,
-      "noImplicitAny": true /* Enable error reporting for expressions and declarations with an implied 'any' type. */,
-      "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-      "baseUrl": ".",
-      "paths": {
-          "@/*": ["./resources/js/*"],
-      },
-      "jsx": "react-jsx"
+    "allowJs": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "isolatedModules": true,
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./resources/js/*"],
+    },
+    "types": ["vite/client"]
   },
   "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"],
   "exclude": ["node_modules", "public", "resources/css"]
-}
+} 
 
-Step 11: สร้างไฟล์ welcome.tsx และ about.tsx
+
+Step 22: สร้างไฟล์ welcome.tsx และ about.tsx
 ---
 resources\js\pages\welcome.tsx
 ---
@@ -3508,12 +3507,11 @@ export default function Welcome() {
   return (
     <div>
       <div className='text-3xl text-green-600'>Welcome Page</div>
-      <Link href="/about">About</Link>
     </div>
   )
 }
 
-Step 12: แก้ไขไฟล์ route (web.php)
+Step 23: แก้ไขไฟล์ route (web.php)
 ---
 \routes\web.php
 ---
@@ -3523,7 +3521,918 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+    return Inertia::render('Welcome');
+})->name('welcome');
+
+Step 24: สร้าง page "Welcome.tsx"
+---
+import React, { useState, useEffect } from 'react'
+import { Link } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
+
+export default function Welcome() {
+
+  // สร้างตัวแปรสำหรับกำหนด dark mode
+  const [darkMode, setDarkMode] = useState(false)
+
+  // เพิ่ม dark mode
+  useEffect(() => {
+    // ตรวจสอบ system preference
+    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const savedDarkMode = localStorage.getItem('darkMode')
+
+    // ถ้ามีค่าใน localStorage ให้ใช้ค่านั้น ไม่งั้นใช้ค่า system preference
+    const isDarkMode = savedDarkMode !== null ? savedDarkMode === 'true' : prefersDarkMode
+    setDarkMode(isDarkMode)
+    
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  })
+
+  // ฟังก์ชันสำหรับเปลี่ยน mode เป็น dark/light
+  const toggleDarkMode = () => {
+
+    const newDarkMode = !darkMode
+    setDarkMode(newDarkMode)
+
+    // บันทึกลง localStorage
+    localStorage.setItem('darkMode', String(newDarkMode))
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+
+  }
+
+  return (
+    <>
+      <Head>
+          <title>Welcome</title>
+          <meta name="description" content="Welcome page description" />
+      </Head>
+        
+      <div className="bg-white dark:bg-black text-gray-800 dark:text-gray-200 min-h-screen">
+        
+        {/* Navigation */}
+        <nav className="fixed top-0 left-0 right-0 p-4 w-full z-10 bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
+          <div className="flex justify-between max-w-6xl mx-auto">
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center gap-2">
+                <img src="/static/logo.svg" width="110" height="32" alt="IMS-Thai" className="h-8" />
+              </Link>
+            </div>
+            
+            <div className="flex items-center gap-2">
+
+                {/* ลิงก์เข้าสู่ระบบ/ลงทะเบียน */}
+                  <Link
+                  href="#"
+                  className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                  >
+                  เข้าสู่ระบบ
+                  </Link>
+                  <Link
+                      href="#"
+                      className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-md transition-colors"
+                  >
+                      ลงทะเบียน
+                  </Link>
+            </div>
+                
+              {/* Dark mode toggle */}
+              <button 
+                onClick={toggleDarkMode}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800"
+                aria-label={darkMode ? "เปลี่ยนเป็นโหมดสว่าง" : "เปลี่ยนเป็นโหมดมืด"}
+              >
+                {darkMode ? (
+                  <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
+
+            </div>
+        </nav>
+
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-16 max-w-5xl">
+          <div className="mt-16 flex flex-col items-center">
+            {/* Technology Cards */}
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-8 w-full max-w-4xl mx-auto">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-red-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                    <line x1="16" y1="8" x2="2" y2="22"></line>
+                    <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                  </svg>
+                </div>
+                <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">Laravel</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                  เฟรมเวิร์ค PHP ที่มีเครื่องมือครบครันสำหรับการพัฒนาเว็บแอปพลิเคชัน
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-purple-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                  </svg>
+                </div>
+                <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">Inertia.js</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                  เชื่อมต่อแอปพลิเคชัน Laravel กับ React โดยไม่ต้องสร้าง API
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-blue-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
+                    <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line>
+                    <line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line>
+                  </svg>
+                </div>
+                <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">React</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                  ไลบรารี JavaScript สำหรับสร้าง UI แบบโมเดิร์น รวดเร็ว และตอบสนองผู้ใช้
+                </p>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="mt-20 w-full max-w-4xl mx-auto">
+              <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-8">
+                คุณสมบัติหลัก
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+                  <div className="flex">
+                    <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">จัดการสินค้า</h3>
+                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        บริหารสินค้าคงคลังแบบเรียลไทม์ ติดตามสต็อกได้อย่างแม่นยำ
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+                  <div className="flex">
+                    <div className="flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-lg p-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">รายงานสรุป</h3>
+                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        ดูรายงานและข้อมูลสถิติที่สำคัญเพื่อการวิเคราะห์และตัดสินใจ
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="mb-0 py-6 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <div className="flex flex-col items-center justify-center text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                พัฒนาด้วย <span className="text-red-500">♥</span> โดย ITGenius
+              </p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-500">
+                © {new Date().getFullYear()} IMS-Thai. สงวนลิขสิทธิ์
+              </p>
+            </div>
+          </div>
+        </footer>
+      </div>
+        
+    </>
+  )
+}
+
+Step 25: แก้ไขไฟล์ app.css
+---
+\resources\css\app.css
+---
+@import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* Custom variant for dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Anuphan', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
 
 
+Step 26: Layout สำหรับผู้ใช้ (Guest)
+---
+\resources\js\Layouts\GuestLayout.tsx
+---
+import { PropsWithChildren, useState, useEffect } from 'react'
+import { Link } from '@inertiajs/react'
+
+export default function Guest({ children }: PropsWithChildren) {
+
+  const [_, setDarkMode] = useState(false)
+
+  // เพิ่ม dark mode
+  useEffect(() => {
+    // ตรวจสอบ system preference
+    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const savedDarkMode = localStorage.getItem('darkMode')
+    
+    // ถ้ามีค่าใน localStorage ให้ใช้ค่านั้น ไม่งั้นใช้ค่า system preference
+    const isDarkMode = savedDarkMode !== null ? savedDarkMode === 'true' : prefersDarkMode
+    setDarkMode(isDarkMode)
+    
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+
+  return (
+    <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-black">
+      
+      <div>
+        <Link href="/" className="flex justify-center">
+          <img src="/static/logo.svg" width="110" height="32" alt="IMS-Thai" />
+        </Link>
+      </div>
+
+      <div className="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
+        {/* BEGIN: Content */}
+        {children}
+        {/* END: Content */}
+      </div>
+      
+    </div>
+  )
+} 
+
+Step 27: สร้างหน้า Login.tsx ไว้ใน 
+\resources\js\pages\Auth\Login.tsx
+---
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+
+export default function Login() {
+  return (
+    <GuestLayout>
+        <Head>
+            <title>Login</title>
+            <meta name="description" content="Welcome page description" />
+        </Head>
+
+        <form>
+            <div>
+                <h1>Login</h1>
+            </div>
+        </form>
+    </GuestLayout>
+  )
+}
+
+
+Step 28: แก้ไขไฟล์ web.php
+---
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    return Inertia::render('Welcome');
+})->name('welcome');
+
+Route::get('/login', function () {
+    return Inertia::render('Auth/Login');
+})->name('login');
+
+
+Step 29: สร้างหน้า Register.tsx ไว้ใน 
+\resources\js\pages\Auth\Regiser.tsx
+---
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+
+export default function Register() {
+  return (
+    <GuestLayout>
+        <Head>
+            <title>Register</title>
+            <meta name="description" content="Welcome page description" />
+        </Head>
+
+        <form>
+            <div>
+                <h1>Reister</h1>
+            </div>
+        </form>
+    </GuestLayout>
+  )
+}
+
+Step 30: แก้ไขไฟล์ web.php
+---
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    return Inertia::render('Welcome');
+})->name('welcome');
+
+Route::get('/login', function () {
+    return Inertia::render('Auth/Login');
+})->name('login');
+
+Route::get('/register', function () {
+    return Inertia::render('Auth/Register');
+})->name('register');
+
+Step 31: แก้ลิงก์เมนูที่หน้า Welcome.tsx
+---
+.
+{/* ลิงก์เข้าสู่ระบบ/ลงทะเบียน */}
+                  <Link
+                    href="/login"
+                    className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                  >
+                    เข้าสู่ระบบ
+                  </Link>
+                  <Link
+                      href="/register"
+                      className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-md transition-colors"
+                  >
+                    ลงทะเบียน
+                  </Link>
+.
+
+Step 32: สร้าง Component สำหรับไว้รับข้อมูล Text
+---
+\resources\js\Components\TextInput.tsx
+---
+import { forwardRef, InputHTMLAttributes } from 'react'
+
+interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  error?: string
+}
+
+const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+  ({ className = '', error, ...props }, ref) => (
+    <input
+      {...props}
+      ref={ref}
+      className={`mt-1 block w-full rounded-md 
+        border border-gray-300 dark:border-gray-600 
+        bg-white dark:bg-gray-900 
+        text-gray-900 dark:text-gray-100 
+        placeholder-gray-400 dark:placeholder-gray-500
+        shadow-sm 
+        focus:outline-none focus:ring-2 focus:ring-offset-2
+        focus:border-blue-500 focus:ring-blue-500/20 
+        dark:focus:border-blue-400 dark:focus:ring-blue-400/20
+        disabled:bg-gray-50 dark:disabled:bg-gray-800
+        disabled:text-gray-500 dark:disabled:text-gray-400
+        disabled:cursor-not-allowed
+        sm:text-sm
+        transition-all duration-200 ease-in-out
+        ${error ? 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:focus:border-red-400 dark:focus:ring-red-400/20' : ''} 
+        ${className}`}
+    />
+  )
+)
+
+TextInput.displayName = 'TextInput'
+
+export default TextInput 
+
+---
+Step 33: สร้าง Component สำหรับไว้สำหรับแสดง label ของตัว Input
+---
+\resources\js\Components\InputLabel.tsx
+---
+import { ReactNode } from 'react'
+
+interface InputLabelProps {
+  value?: ReactNode
+  htmlFor?: string
+  children?: ReactNode
+  className?: string
+  required?: boolean
+}
+
+export default function InputLabel({ value, htmlFor, className = '', children, required = false }: InputLabelProps) {
+  return (
+    <label htmlFor={htmlFor} className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${className}`}>
+      {value || children}
+      {required && <span className="text-red-600 dark:text-red-400 ml-1">*</span>}
+    </label>
+  )
+}
+
+---
+Step 34: เรียกใช้งานที่หน้า Login.tsx
+---
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+import TextInput from '@/Components/TextInput'
+import InputLabel from '@/Components/InputLabel'
+
+export default function Login() {
+  return (
+    <GuestLayout>
+        <Head>
+            <title>Login</title>
+            <meta name="description" content="Welcome page description" />
+        </Head>
+
+        <form>
+
+            <div>
+                <InputLabel htmlFor='email' value='อีเมล์'/>
+                <TextInput
+                  id='email'
+                  type='email'
+                  name='email'
+                  value='demo@email.com'
+                  className="mt-1 p-2 block w-full"
+                />
+            </div>
+
+            <div className="mt-4">
+                <InputLabel htmlFor='password' value='รหัสผ่าน'/>
+                <TextInput
+                  id='password'
+                  type='password'
+                  name='password'
+                  value='******'
+                  className="mt-1 p-2 block w-full"
+                />
+            </div>
+
+            {/* Login Button */}
+            <div className="flex items-center justify-end mt-4">
+              <Link
+                href="/register"
+                className="text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-4"
+              >
+                ลงทะเบียน
+              </Link>
+
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 ml-4"
+              >
+                เข้าสู่ระบบ
+              </button>
+              
+            </div>
+
+        </form>
+    </GuestLayout>
+  )
+}
+
+---
+Step 35: สร้าง Component "InputError.tsx" ไว้แสดง error ในฟอร์ม
+----
+interface InputErrorProps {
+  message?: string
+  className?: string
+}
+
+export default function InputError({ message, className = '' }: InputErrorProps) {
+  if (!message) {
+    return null
+  }
+
+  return (
+    <div className={`text-sm text-red-600 dark:text-red-400 mt-2 ${className}`}>
+      {message}
+    </div>
+  )
+} 
+
+---
+Step 36: เรียกใช้ InputError ที่หน้า Login.tsx
+----
+import InputError from '@/Components/InputError'
+.
+<InputError message='This field is required' />
+.
+
+---
+Step 37: แก้ไขหน้า Register.tsx
+---
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+import TextInput from '@/Components/TextInput'
+import InputLabel from '@/Components/InputLabel'
+import InputError from '@/Components/InputError'
+
+export default function Register() {
+  return (
+    <GuestLayout>
+        <Head>
+            <title>Register</title>
+            <meta name="description" content="Register page description" />
+        </Head>
+
+        <form>
+
+          <div>
+                <InputLabel htmlFor='name' value='ชื่อ'/>
+                <TextInput
+                  id='name'
+                  type='text'
+                  name='name'
+                  value='Samit'
+                  className="mt-1 p-2 block w-full"
+                />
+                <InputError message='This field is required' />
+            </div>
+
+            <div className="mt-4">
+                <InputLabel htmlFor='email' value='อีเมล์'/>
+                <TextInput
+                  id='email'
+                  type='email'
+                  name='email'
+                  value='demo@email.com'
+                  className="mt-1 p-2 block w-full"
+                />
+                <InputError message='This field is required' />
+            </div>
+
+            <div className="mt-4">
+                <InputLabel htmlFor='password' value='รหัสผ่าน'/>
+                <TextInput
+                  id='password'
+                  type='password'
+                  name='password'
+                  value='******'
+                  className="mt-1 p-2 block w-full"
+                />
+                <InputError message='This field is required' />
+            </div>
+
+            <div className="mt-4">
+                <InputLabel htmlFor='password_confirmation' value='ยืนยันรหัสผ่าน'/>
+                <TextInput
+                  id='password_confirmation'
+                  type='password'
+                  name='password_confirmation'
+                  value='******'
+                  className="mt-1 p-2 block w-full"
+                />
+                <InputError message='This field is required' />
+            </div>
+
+            {/* Register Button */}
+            <div className="flex items-center justify-end mt-4">
+              <Link
+                href="/login"
+                className="text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-4"
+              >
+                มีบัญชีอยู่แล้ว เข้าสู่ระบบ
+              </Link>
+
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 ml-4"
+              >
+                ลงทะเบียน
+              </button>
+
+            </div>
+
+        </form>
+    </GuestLayout>
+  )
+}
+
+---
+Step 38: สร้างหน้า ForgotPassword.tsx
+---
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+import TextInput from '@/Components/TextInput'
+import InputLabel from '@/Components/InputLabel'
+import InputError from '@/Components/InputError'
+
+export default function ForgotPassword() {
+    return (
+        <GuestLayout>
+            <Head>
+                <title>ลืมรหัสผ่าน</title>
+                <meta name="description" content="Fogotpassword page description" />
+            </Head>
+
+            <form>
+                <div>
+                    <InputLabel htmlFor="email" value="อีเมล" />
+
+                    <TextInput
+                        id="email"
+                        type="email"
+                        name="email"
+                        className="mt-1 p-2 block w-full"
+                        autoFocus
+                    />
+
+                    <InputError message="This field is required" />
+                </div>
+
+                <div className="flex items-center justify-between mt-4">
+                    <Link
+                        href="/login"
+                        className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        กลับไปหน้าเข้าสู่ระบบ
+                    </Link>
+
+                    <button 
+                        type="submit" 
+                        className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    >
+                        ส่งลิงก์รีเซ็ตรหัสผ่าน
+                    </button>
+                </div>
+            </form>
+        </GuestLayout>
+    )
+}
+
+---
+Step 39: สร้างหน้า ResetPassword.tsx
+---
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+import TextInput from '@/Components/TextInput'
+import InputLabel from '@/Components/InputLabel'
+import InputError from '@/Components/InputError'
+
+export default function ResetPassword() {
+    return (
+        <GuestLayout>
+            <Head>
+                <title>รีเซ็ตรหัสผ่าน</title>
+                <meta name="description" content="Reset password page description" />
+            </Head>
+
+            <div className="mb-4 text-center">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">รีเซ็ตรหัสผ่าน</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">กำหนดรหัสผ่านใหม่สำหรับบัญชีของคุณ</p>
+            </div>
+
+            <form>
+                <div>
+                    <InputLabel htmlFor="email" value="อีเมล" />
+
+                    <TextInput
+                        id="email"
+                        type="email"
+                        name="email"
+                        className="mt-1 p-2 block w-full"
+                        autoFocus
+                    />
+
+                    <InputError message="This field is required" />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor='password' value='รหัสผ่านใหม่'/>
+                    <TextInput
+                    id='password'
+                    type='password'
+                    name='password'
+                    value='******'
+                    className="mt-1 p-2 block w-full"
+                    />
+                    <InputError message='This field is required' />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor='password_confirmation' value='ยืนยันรหัสผ่านใหม่'/>
+                    <TextInput
+                    id='password_confirmation'
+                    type='password'
+                    name='password_confirmation'
+                    value='******'
+                    className="mt-1 p-2 block w-full"
+                    />
+                    <InputError message='This field is required' />
+                </div>
+
+                <div className="flex items-center justify-between mt-4">
+                    <Link
+                        href="/login"
+                        className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        กลับไปหน้าเข้าสู่ระบบ
+                    </Link>
+
+                    <button 
+                        type="submit" 
+                        className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    >
+                        รีเซ็ตรหัสผ่าน
+                    </button>
+                </div>
+            </form>
+        </GuestLayout>
+    )
+}
+
+---
+Step 40: สร้างหน้า ConfirmPassword.tsx
+---
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+import TextInput from '@/Components/TextInput'
+import InputLabel from '@/Components/InputLabel'
+import InputError from '@/Components/InputError'
+
+export default function ConfirmPassword() {
+    return (
+        <GuestLayout>
+            <Head>
+                <title>ยืนยันรหัสผ่าน</title>
+                <meta name="description" content="Comfirmed password page description" />
+            </Head>
+
+            <div className="mb-4 text-center">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ยืนยันรหัสผ่าน</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">เพื่อความปลอดภัย โปรดยืนยันรหัสผ่านของคุณก่อนดำเนินการต่อ</p>
+            </div>
+
+            <form>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor='password' value='รหัสผ่าน'/>
+                    <TextInput
+                    id='password'
+                    type='password'
+                    name='password'
+                    value='******'
+                    className="mt-1 p-2 block w-full"
+                    />
+                    <InputError message='This field is required' />
+                </div>
+
+                <div className="flex items-center justify-between mt-4">
+                    <button 
+                        type="submit" 
+                        className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    >
+                        ยืนยัน
+                    </button>
+                </div>
+            </form>
+        </GuestLayout>
+    )
+}
+
+---
+Step 41: VerifyEmail.tsx
+----
+import { useEffect, FormEventHandler } from 'react'
+import { Head, Link, useForm } from '@inertiajs/react'
+import GuestLayout from '@/Layouts/GuestLayout'
+
+export default function VerifyEmail() {
+    return (
+        <GuestLayout>
+            <Head>
+                <title>ยืนยันอีเมลของคุณ</title>
+                <meta name="description" content="VerifyEmail email page description" />
+            </Head>
+
+            <div className="mb-4 text-center">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ยืนยันอีเมลของคุณ</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1"> ขอบคุณสำหรับการลงทะเบียน! ก่อนเริ่มใช้งาน โปรดยืนยันอีเมลของคุณโดยคลิกที่ลิงก์ที่เราได้ส่งไปให้คุณทางอีเมล
+                หากคุณไม่ได้รับอีเมล เราจะส่งอีกฉบับให้คุณ</p>
+            </div>
+
+            <form>
+                <div className="mt-4 flex items-center justify-between">
+                    <button 
+                        type="submit" 
+                        className="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    >
+                        ส่งอีเมลยืนยันอีกครั้ง
+                    </button>
+
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        type="button"
+                        className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        ออกจากระบบ
+                    </Link>
+                </div>
+            </form>
+        </GuestLayout>
+    )
+}
+
+---
+Step 42: แก้ไข web.php
+---
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    return Inertia::render('Welcome');
+})->name('welcome');
+
+Route::get('/login', function () {
+    return Inertia::render('Auth/Login');
+})->name('login');
+
+Route::get('/register', function () {
+    return Inertia::render('Auth/Register');
+})->name('register');
+
+Route::get('/forgotpassword', function () {
+    return Inertia::render('Auth/ForgotPassword');
+})->name('forgotpassword');
+
+Route::get('/resetpassword', function () {
+    return Inertia::render('Auth/ResetPassword');
+})->name('resetpassword');
+
+Route::get('/confirmpassword', function () {
+    return Inertia::render('Auth/ConfirmPassword');
+})->name('confirmpassword');
+
+Route::get('/verifyemail', function () {
+    return Inertia::render('Auth/VerifyEmail');
+})->name('verifyemail');
+
+---
+Step 43: แก้ไขหน้า Login.tsx ใส่ลืมรหัสผ่าน
+----
+.
+<div className="flex items-center justify-between mt-4 mb-8">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="remember"
+                  className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                />
+                <span className="ml-2 text-sm text-gray-600">จดจำฉัน</span>
+              </label>
+              <Link
+                href="/forgotpassword"
+                className="text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                ลืมรหัสผ่าน?
+              </Link>
+            </div>
+.
